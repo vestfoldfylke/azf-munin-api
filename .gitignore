@@ -46,3 +46,9 @@ __pycache__/
 __blobstorage__
 __queuestorage__
 __azurite_db*__.json
+
+# Visual Studio Code
+.vscode/
+
+# Node
+package-lock.json
