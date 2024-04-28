@@ -14,7 +14,7 @@ app.http('noraChat', {
             "apiKey": process.env.HUGGINGFACEHUB_API_TOKEN
         });
         
-        const stream = await openai.chat.completions.create({
+        const respons = await openai.chat.completions.create({
             "model": "norallm/normistral-7b-warm-instruct",
             "messages": [{
                 "role": "user",
@@ -32,7 +32,7 @@ app.http('noraChat', {
             "stop": userMessageJson.parameters.stop,
         });
         
-        const m = await stream;
+        const m = await respons;
         console.log(m.choices[0].message.content);
         return {
             body:  m.choices[0].message.content
