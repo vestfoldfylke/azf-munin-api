@@ -9,18 +9,43 @@ app.http('assistantOpenAi', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
-            const openai = new OpenAI();
-            const run = await openai.beta.threads.createAndRun({
-              assistant_id: "asst_O7ctrFrE5tSJHHS2ACs5Jq1q",
-              thread: {
-                messages: [
-                  { role: "user", content: "Skriv en oppsummering" },
-                ],
-              },
-            });
-            
-            const threadMessages = await openai.beta.threads.messages.list(run.thread_id);
+      const openai = new OpenAI();
+      const userBody = await request.text();
+      const userBodyJson = await JSON.parse(userBody);
 
-        return { body: run.thread_id };
+      const thread = await openai.beta.threads.create();
+
+      const message = await openai.beta.threads.messages.create(
+        thread.id,
+        {
+          role: "user",
+          content: userBodyJson.question
+        }
+      );
+
+      let run = await openai.beta.threads.runs.createAndPoll(
+        thread.id, // Sett inn userBodyJson.thread her siden
+        { 
+          assistant_id: userBodyJson.assistant_id, // Dette er læreplanassistenten
+          instructions: "Svar alltid kort og konkret på spørsmålet. Svar på norsk."
+        }
+      );
+
+      const m = [];
+      if (run.status === 'completed') {
+        const messages = await openai.beta.threads.messages.list(
+          run.thread_id
+        );
+        for (const message of messages.data.reverse()) {
+          console.log(`${message.role} > ${message.content[0].text.value}`);
+          m.push(`${message.role} > ${message.content[0].text.value}`);
+        }
+      } else {
+        console.log(run.status);
+      }
+
+      return {
+        body: m
+      };
     }
 });
