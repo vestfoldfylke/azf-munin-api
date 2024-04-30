@@ -18,10 +18,41 @@ To function properly it is recommended to use the following parameters when send
 ```json
 {
 	"assistant_id": "asst_...",
+	"new_thread": false,
 	"thread_id": "thread_...",
-	"question": "Står det noe om etikk i dokumentet?"
+	"question": "<Spørsmål fra brukeren>"
 }
 ```
+
+The return object from the assistantOpenAI endpoint will look like this:
+```json
+{
+	"run": "completed",
+	"thread_id": "thread_...",
+	"assistant_id": "asst_...",
+	"messages": {
+		"id": "msg_...",
+		"object": "thread.message",
+		"created_at": 1714472342,
+		"assistant_id": "asst_...",
+		"thread_id": "thread_...",
+		"run_id": "run_...",
+		"role": "assistant",
+		"content": [
+			{
+				"type": "text",
+				"text": {
+					"value": "<Svar på siste spørsmål>",
+					"annotations": []
+				}
+			}
+		],
+		"attachments": [],
+		"metadata": {}
+	}
+}
+```
+
 
 ### noraChat
 This endpoint is used to communicate with the Hugging Face inference API and is currently set up with the norwegian NoraLLM model.

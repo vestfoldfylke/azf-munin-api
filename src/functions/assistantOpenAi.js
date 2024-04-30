@@ -2,9 +2,6 @@ const { app } = require("@azure/functions");
 const { OpenAI } = require("openai");
 require("dotenv").config();
 
-// Denne funksjonen er ikke ferdig.....
-// Kun prototypet for å testet om man får returnert en thread_id fra openai
-
 app.http('assistantOpenAi', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
@@ -13,8 +10,15 @@ app.http('assistantOpenAi', {
       const userBody = await request.text();
       const userBodyJson = await JSON.parse(userBody);
 
-      const thread = await openai.beta.threads.create();
+      // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
+      let thread;
+      if (userBodyJson.new_thread) {
+        thread = await openai.beta.threads.create();
+      } else {
+        thread = await openai.beta.threads.retrieve(userBodyJson.thread_id);
+      }
 
+      // Legger til brukerens spørsmål i tråden
       const message = await openai.beta.threads.messages.create(
         thread.id,
         {
@@ -23,29 +27,39 @@ app.http('assistantOpenAi', {
         }
       );
 
-      let run = await openai.beta.threads.runs.createAndPoll(
-        thread.id, // Sett inn userBodyJson.thread her siden
-        { 
-          assistant_id: userBodyJson.assistant_id, // Dette er læreplanassistenten
-          instructions: "Svar alltid kort og konkret på spørsmålet. Svar på norsk."
-        }
+      // Kjører tråden på valgt assistent
+      const run = await openai.beta.threads.runs.createAndPoll(
+        thread.id,
+        {
+          assistant_id: userBodyJson.assistant_id,
+        },
       );
 
-      const m = [];
+      let messages;
       if (run.status === 'completed') {
-        const messages = await openai.beta.threads.messages.list(
+        messages = await openai.beta.threads.messages.list(
           run.thread_id
         );
+        // console.log("Meldinger:", messages.data);
         for (const message of messages.data.reverse()) {
           console.log(`${message.role} > ${message.content[0].text.value}`);
-          m.push(`${message.role} > ${message.content[0].text.value}`);
         }
       } else {
         console.log(run.status);
       }
 
+      // console.log("Run:", run);
+      let responsObjekt = {
+        run: run.status,
+        thread_id: thread.id,
+        assistant_id: run.assistant_id,
+        messages: messages.data
+      }
+
+      r = JSON.stringify(responsObjekt);
+
       return {
-        body: m
+        body: r
       };
     }
 });
