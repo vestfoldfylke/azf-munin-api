@@ -7,20 +7,18 @@ app.http("basicOpenAiChat", {
   authLevel: "anonymous",
   handler: async (request, context) => {
     const openai = new OpenAI();
-    const userMessage = await request.text();
-    const userMessageJson = await JSON.parse(userMessage);
-    const model = await userMessageJson.model;
-    const kontekst = await userMessageJson.kontekst;
+    const params = await JSON.parse(await request.text());
 
     const completion = await openai.chat.completions.create({
       messages: [
-        { role: "system", content: kontekst },
-        { role: "user", content: JSON.parse(userMessage).message },
+        { role: "system", content: params.kontekst },
+        { role: "user", content: params.message },
       ],
-      model: model,
+      model: params.model,
     });
+    console.log("completion:", completion);
     return {
-      body: completion.choices[0].message.content + userMessageJson.model,
+      body: JSON.stringify(completion)
     };
   },
 });

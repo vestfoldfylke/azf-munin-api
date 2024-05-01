@@ -7,15 +7,14 @@ app.http('assistantOpenAi', {
     authLevel: 'anonymous',
     handler: async (request, context) => {
       const openai = new OpenAI();
-      const userBody = await request.text();
-      const userBodyJson = await JSON.parse(userBody);
+      const params = JSON.parse(await request.text());
 
       // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
       let thread;
-      if (userBodyJson.new_thread) {
+      if (params.new_thread) {
         thread = await openai.beta.threads.create();
       } else {
-        thread = await openai.beta.threads.retrieve(userBodyJson.thread_id);
+        thread = await openai.beta.threads.retrieve(params.thread_id);
       }
 
       // Legger til brukerens spørsmål i tråden
@@ -23,7 +22,7 @@ app.http('assistantOpenAi', {
         thread.id,
         {
           role: "user",
-          content: userBodyJson.question
+          content: params.question
         }
       );
 
@@ -31,7 +30,7 @@ app.http('assistantOpenAi', {
       const run = await openai.beta.threads.runs.createAndPoll(
         thread.id,
         {
-          assistant_id: userBodyJson.assistant_id,
+          assistant_id: params.assistant_id,
         },
       );
 
@@ -48,18 +47,15 @@ app.http('assistantOpenAi', {
         console.log(run.status);
       }
 
-      // console.log("Run:", run);
-      let responsObjekt = {
+      let respons = {
         run: run.status,
         thread_id: thread.id,
         assistant_id: run.assistant_id,
         messages: messages.data
       }
 
-      r = JSON.stringify(responsObjekt);
-
       return {
-        body: r
+        body: JSON.stringify(respons)
       };
     }
 });
