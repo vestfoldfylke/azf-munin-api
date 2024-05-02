@@ -53,7 +53,6 @@ The return object from the assistantOpenAI endpoint will look like this:
 }
 ```
 
-
 ### noraChat
 This endpoint is used to communicate with the Hugging Face inference API and is currently set up with the norwegian NoraLLM model.
 
@@ -73,5 +72,16 @@ To function properly it is recommended to use the following parameters when send
         "repetition_penalty": 1.0,
         "return_full_text": true
     }
+}
+```
+
+### vision
+This endpoint is used to analyse images and return a description of the image. The endpoint uses the OpenAI Vision API to analyse the image.
+
+```json
+{
+	"model": "gpt-4-turbo",
+	"question": "Forklar hvordan denne oppgaven skal løses.",
+	"bilde_url": "https://www.matematikksenteret.no/sites/default/files/images/Blogg/Oppgave%20elva.jpg"
 }
 ```
