@@ -12,7 +12,7 @@ app.http('noraChat', {
         const openai = new OpenAI({
             "baseURL": process.env.base_url_hf_nora,
             "apiKey": process.env.HUGGINGFACEHUB_API_TOKEN
-        });
+        })
         
         const respons = await openai.chat.completions.create({
             "model": "norallm/normistral-7b-warm-instruct",
