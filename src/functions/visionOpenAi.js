@@ -9,6 +9,7 @@ app.http('visionOpenAi', {
         const openai = new OpenAI();
         const params = await JSON.parse(await request.text());
 
+          
         const response = await openai.chat.completions.create({
             model: params.model,
             messages: [
