@@ -33,6 +33,7 @@ app.http('assistantOpenAi', {
           assistant_id: params.assistant_id,
         },
       );
+      console.log("Ass_id", params.assistant_id)
 
       let messages;
       if (run.status === 'completed') {
