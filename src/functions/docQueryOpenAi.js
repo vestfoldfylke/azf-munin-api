@@ -32,7 +32,8 @@ app.http("docQueryOpenAi", {
       vectorStore.id,
       { files: fileStreams }
     );
-    // console.log("ul", ul);
+    console.log("ai", assistant_id);
+    console.log("vs", vectorStore.id);
 
     let ua = await openai.beta.assistants.update(assistant_id, {
       tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },
@@ -79,7 +80,7 @@ app.http("docQueryOpenAi", {
       messages: messages.data,
     };
 
-    console.log("Responsen er da: ", respons);
+    console.log("Responsen er da: ", respons.messages[1].content[0].text.value);
     return { jsonBody: respons };
   },
 });

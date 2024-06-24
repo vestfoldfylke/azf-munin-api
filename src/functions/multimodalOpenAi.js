@@ -33,6 +33,10 @@ app.http("multimodalOpenAi", {
       msg.push({ role: "user", content: params.message });
     }
 
+    //const moderation = await openai.moderations.create({ input: "I want to kill them." });
+    //console.log(params.msg);
+    //console.log(JSON.stringify(moderation));
+
     const completion = await openai.chat.completions.create({
       messages: msg,
       model: params.model,
