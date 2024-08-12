@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "@azure/functions": "^4.4.0",
-    "dotenv": "^16.4.5",
-    "openai": "^4.38.2"
+    "openai": "^4.38.2",
+    "validate-azure-ad-token": "^2.2.0"
   },
   "devDependencies": {
     "azure-functions-core-tools": "^4.x"
