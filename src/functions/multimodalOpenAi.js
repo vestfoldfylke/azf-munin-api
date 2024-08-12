@@ -9,6 +9,7 @@ app.http("multimodalOpenAi", {
   handler: async (request, context) => {
     const openai = new OpenAI();
     const params = await JSON.parse(await request.text());
+    let msg
 
      // Validate the token and the role of the user
      try {
