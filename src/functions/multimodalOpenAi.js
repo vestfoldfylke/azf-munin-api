@@ -9,12 +9,19 @@ app.http("multimodalOpenAi", {
   handler: async (request, context) => {
     const openai = new OpenAI();
     const params = await JSON.parse(await request.text());
-    const accesstoken = request.headers.get("Authorization");
+
+     // Validate the token and the role of the user
+     try {
+      const accesstoken = request.headers.get("Authorization");
+      await validateToken(accesstoken, { role: ["hugin.basic", "hugin.admin"] })  
+    } catch (error) {
+        return {
+          status: 401,
+          jsonBody:{ error: error.response?.data || error?.stack || error.message },
+        }
+    }
 
     try {
-      // Validate the token and the role of the user
-      await validateToken(accesstoken, { role: ["hugin.basic", "hugin.admin"] })  
-
       msg = [{ role: "system", content: params.kontekst }];
       msg.push(...params.messageHistory);
 
@@ -38,7 +45,12 @@ app.http("multimodalOpenAi", {
       //const moderation = await openai.moderations.create({ input: "I want to kill them." });
       //console.log(params.msg);
       //console.log(JSON.stringify(moderation));
-
+    } catch (error) {
+      return {
+        jsonBody: { error: error.response?.data || error?.stack || error.message },
+      }
+    }
+    try {
       const completion = await openai.chat.completions.create({
         messages: msg,
         model: params.model,
@@ -50,8 +62,7 @@ app.http("multimodalOpenAi", {
       };
     } catch (error) {
       return {
-        status: 401,
-        body: JSON.stringify({ error: error.message }),
+        jsonBody: { error: error.response?.data || error?.stack || error.message },
       }
     }
   },
