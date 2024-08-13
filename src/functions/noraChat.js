@@ -9,7 +9,7 @@ app.http('noraChat', {
     handler: async (request, context) => {
         try {
             const accesstoken = request.headers.get("Authorization");
-            await validateToken(accesstoken, { role: ["hugin.admin"] });
+            await validateToken(accesstoken, { role: [`${process.env.tenantId}.admin`] });
             const userMessage = await request.text();
             const userMessageJson = await JSON.parse(userMessage);
             
