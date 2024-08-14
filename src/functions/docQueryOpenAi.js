@@ -9,7 +9,7 @@ app.http("docQueryOpenAi", {
   handler: async (request, context) => {
     try {
       const accesstoken = request.headers.get("Authorization");
-      await validateToken(accesstoken, { role: ["hugin.admin"] });
+      await validateToken(accesstoken, { role: [`${process.env.appName}.admin`] });
       const openai = new OpenAI();
 
       // Payload fra klienten
