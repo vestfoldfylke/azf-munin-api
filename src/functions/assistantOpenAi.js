@@ -9,7 +9,7 @@ app.http('assistantOpenAi', {
     handler: async (request, context) => {
       try {
         const accesstoken = request.headers.get("Authorization");
-        await validateToken(accesstoken, { role: [`${process.env.tenantId}.basic`, `${process.env.tenantId}.admin`] });
+        await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] });
         const openai = new OpenAI();
         const params = JSON.parse(await request.text());
 

@@ -14,7 +14,7 @@ app.http("multimodalOpenAi", {
      // Validate the token and the role of the user
      try {
       const accesstoken = request.headers.get("Authorization");
-      await validateToken(accesstoken, { role: [`${process.env.tenantId}.basic`, `${process.env.tenantId}.admin`] })  
+      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] })  
     } catch (error) {
         return {
           status: 401,

@@ -17,6 +17,8 @@ const validateRoles = (tokenRoles, role) => {
     return false;
   }
   // Check if the user has the required role.
+  // console.log(`tokenRoles: ${tokenRoles}`);
+  // console.log(`Role: ${role}`)
   const hasRole = tokenRoles.some((r) => role.includes(r));
   return hasRole;
 }
@@ -38,8 +40,12 @@ const validateToken = async (token, options) => {
         scopes: ["user_impersonation"]
     });
     // Check if the user has the required role. And return true or false
-
-    return validateRoles(decodedToken.roles, options.role) ? true : false;
+    if(validateRoles(decodedToken.payload.roles, options.role)) {
+      return true
+    } else {
+      throw new Error("Unauthorized");
+    }
+    // return validateRoles(decodedToken.payload.roles, options.role) ? true : false;
 } catch (error) {
     throw new Error("Unauthorized", error);
   }
