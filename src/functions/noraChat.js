@@ -9,7 +9,7 @@ app.http('noraChat', {
     handler: async (request, context) => {
         try {
             const accesstoken = request.headers.get("Authorization");
-            await validateToken(accesstoken, { role: [`${process.env.appName}.admin`] });
+            await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] });
             const userMessage = await request.text();
             const userMessageJson = await JSON.parse(userMessage);
             
@@ -37,7 +37,7 @@ app.http('noraChat', {
             });
             
             const m = await respons;
-            console.log(m.choices[0].message.content);
+            // console.log(m.choices[0].message.content);
             return {
                 body:  m.choices[0].message.content
             };
