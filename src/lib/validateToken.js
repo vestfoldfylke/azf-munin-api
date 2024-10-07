@@ -16,10 +16,15 @@ const validateRoles = (tokenRoles, role) => {
   if (!tokenRoles) {
     return false
   }
+  const toLowerCase = (arr) => arr.map((r) => r.toLowerCase())
+  // Convert the roles to lowercase
+  tokenRoles = toLowerCase(tokenRoles)
+  role = toLowerCase(role)
   // Check if the user has the required role.
   // console.log(`tokenRoles: ${tokenRoles}`);
   // console.log(`Role: ${role}`)
   const hasRole = tokenRoles.some((r) => role.includes(r))
+  console.log(hasRole)
   return hasRole
 }
 
@@ -39,7 +44,6 @@ const validateToken = async (token, options) => {
       applicationId: process.env.applicationId,
       scopes: ['user_impersonation']
     })
-    // Check if the user has the required role. And return true or false
     if (validateRoles(decodedToken.payload.roles, options.role)) {
       return true
     } else {
