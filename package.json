@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@azure/functions": "^4.4.0",
-    "openai": "^4.38.2",
+    "openai": "^4.67.2",
     "validate-azure-ad-token": "^2.2.0"
   },
   "devDependencies": {
