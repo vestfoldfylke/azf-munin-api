@@ -51,7 +51,7 @@ app.http('multimodalOpenAi', {
       const completion = await openai.chat.completions.create({
         messages: msg,
         model: params.model,
-        temperature: params.temperature,
+        temperature: params.temperature
       })
 
       return {
