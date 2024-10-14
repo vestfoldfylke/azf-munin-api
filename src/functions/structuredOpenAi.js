@@ -42,10 +42,6 @@ app.http('structuredOpenAi', {
       } else {
         msg.push({ role: 'user', content: params.message })
       }
-
-      // const moderation = await openai.moderations.create({ input: "I want to kill them." });
-      // console.log(params.msg);
-      // console.log(JSON.stringify(moderation));
     } catch (error) {
       return {
         jsonBody: { error: error.response?.data || error?.stack || error.message }
