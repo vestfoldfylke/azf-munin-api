@@ -2,7 +2,7 @@ const { app } = require('@azure/functions')
 const { OpenAI } = require('openai')
 
 app.timer('wakeNora', {
-  schedule: '0 0 6-14 * * 1-5', // Pinger Nora mellom 08:00 og 16:00 på hverdager (Legg til 2 timer for UTC)
+  schedule: '0 55 5-13 * * 1-5', // Pinger Nora mellom 07:55 og 15:55 på hverdager (Legg til 2 timer for UTC)
   handler: async (myTimer, context) => {
     context.log('Timer function processed request.')
     try {
