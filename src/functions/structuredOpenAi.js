@@ -3,7 +3,7 @@ const { OpenAI } = require('openai')
 const validateToken = require('../lib/validateToken')
 // require("dotenv").config();
 
-app.http('multimodalOpenAi', {
+app.http('structuredOpenAi', {
   methods: ['GET', 'POST'],
   authLevel: 'anonymous',
   handler: async (request, context) => {
@@ -48,10 +48,11 @@ app.http('multimodalOpenAi', {
       }
     }
     try {
-      const completion = await openai.chat.completions.create({
+      const completion = await openai.beta.chat.completions.parse({
         messages: msg,
         model: params.model,
-        temperature: params.temperature
+        temperature: params.temperature,
+        response_format: params.response_format
       })
 
       return {
