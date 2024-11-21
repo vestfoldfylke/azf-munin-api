@@ -29,8 +29,23 @@ app.timer('wakeNora', {
         return_full_text: true
       })
 
+      const respons2 = await fetch(
+        process.env.base_url_hf_nbtranscript,
+        {
+            headers: { 
+                "Accept" : "application/json",
+                "Authorization": `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+                "Content-Type": "audio/flac" 
+            },
+            method: "POST",
+            body: "WakeWake",
+        }
+    );
+
       const m = await respons
+      const m2 = await respons2
       console.log(m.choices[0].message.content)
+      console.log(m2)
     } catch (error) {
       console.log(error.message)
     }
