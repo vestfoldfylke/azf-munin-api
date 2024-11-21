@@ -43,7 +43,7 @@ app.timer('wakeNora', {
     );
 
       const m = await respons
-      const m2 = await respons2
+      // const m2 = await respons2
       console.log(m.choices[0].message.content)
       console.log(m2)
     } catch (error) {
