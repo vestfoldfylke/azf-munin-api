@@ -11,7 +11,7 @@ app.timer('wakeNora', {
         apiKey: process.env.HUGGINGFACEHUB_API_TOKEN
       })
 
-      const respons = await openai.chat.completions.create({
+      const wakeNora = await openai.chat.completions.create({
         model: 'norallm/normistral-7b-warm-instruct',
         messages: [{
           role: 'user',
@@ -29,7 +29,7 @@ app.timer('wakeNora', {
         return_full_text: true
       })
 
-      const respons2 = await fetch(
+      const wakeNB = await fetch(
         process.env.base_url_hf_nbtranscript,
         {
             headers: { 
@@ -42,10 +42,10 @@ app.timer('wakeNora', {
         }
     );
 
-      const m = await respons
-      // const m2 = await respons2
-      console.log(m.choices[0].message.content)
-      console.log(m2)
+      const w1 = await wakeNora
+      const w2 = await wakeNB
+      console.log(w1.choices[0].message.content)
+      console.log(w22)
     } catch (error) {
       console.log(error.message)
     }
