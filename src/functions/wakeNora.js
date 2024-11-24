@@ -42,10 +42,10 @@ app.timer('wakeNora', {
         }
     );
 
-      const w1 = await wakeNora
-      const w2 = await wakeNB
+      const w1 = wakeNora
+      const w2 = wakeNB
       console.log(w1.choices[0].message.content)
-      console.log(w22)
+      console.log(w2)
     } catch (error) {
       console.log(error.message)
     }
