@@ -32,15 +32,15 @@ app.timer('wakeNora', {
       const wakeNB = await fetch(
         process.env.base_url_hf_nbtranscript,
         {
-            headers: { 
-                "Accept" : "application/json",
-                "Authorization": `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
-                "Content-Type": "audio/flac" 
-            },
-            method: "POST",
-            body: "WakeWake",
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+            'Content-Type': 'audio/flac'
+          },
+          method: 'POST',
+          body: 'WakeWake'
         }
-    );
+      )
 
       const w1 = wakeNora
       const w2 = wakeNB

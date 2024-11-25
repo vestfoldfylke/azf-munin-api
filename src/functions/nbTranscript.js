@@ -31,17 +31,16 @@ app.http('nbTranscript', {
             const result = await response.json();
             console.log("Her er resultatet: ")
 
-            const respons = {
-                data: result
-            }
-            console.log(respons)
-            return { jsonBody: respons };
-        } 
-        catch (error) {
-            return {
-              status: 401,
-              body: JSON.stringify({ error: error.message })
-            }
-          }
-        }
-      });
+      const respons = {
+        data: result
+      }
+      console.log(respons)
+      return { jsonBody: respons }
+    } catch (error) {
+      return {
+        status: 401,
+        body: JSON.stringify({ error: error.message })
+      }
+    }
+  }
+})
