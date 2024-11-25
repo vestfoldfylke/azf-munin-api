@@ -4,14 +4,15 @@ const { OpenAI } = require('openai')
 app.http('wakeNoraDev', {
   methods: ['GET', 'POST'],
   authLevel: 'anonymous',
-  handler: async (request, context) => {
+  handler: async (myTimer, context) => {
+    context.log('Timer function processed request.')
     try {
       const openai = new OpenAI({
         baseURL: process.env.base_url_hf_nora,
         apiKey: process.env.HUGGINGFACEHUB_API_TOKEN
       })
 
-      const respons = await openai.chat.completions.create({
+      const wakeNora = await openai.chat.completions.create({
         model: 'norallm/normistral-7b-warm-instruct',
         messages: [{
           role: 'user',
@@ -29,8 +30,21 @@ app.http('wakeNoraDev', {
         return_full_text: true
       })
 
-      const m = await respons
-      console.log(m.choices[0].message.content)
+      const wakeNB = await fetch(
+        process.env.base_url_hf_nbtranscript,
+        {
+            headers: { 
+                "Accept" : "application/json",
+                "Authorization": `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+                "Content-Type": "audio/flac" 
+            },
+            method: "POST",
+            body: "WakeWake",
+        }
+    );
+
+      console.log(wakeNora)
+      console.log(wakeNB)
     } catch (error) {
       console.log(error.message)
     }
