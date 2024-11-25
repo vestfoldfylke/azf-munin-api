@@ -7,7 +7,7 @@ app.http('nbTranscript', {
     handler: async (request, context) => {
         try {
             const accesstoken = request.headers.get('Authorization')
-            await validateToken(accesstoken, { role: [`${process.env.appName}.labs`] })
+            await validateToken(accesstoken, { role: [`${process.env.appName}.admin`] })
            
             // Payload fra klienten
             const formPayload = await request.formData()
@@ -31,17 +31,16 @@ app.http('nbTranscript', {
             const result = await response.json();
             console.log("Her er resultatet: ")
 
-            const respons = {
-                data: result
-            }
-            console.log(respons)
-            return { jsonBody: respons };
-        } 
-        catch (error) {
-            return {
-              status: 401,
-              body: JSON.stringify({ error: error.message })
-            }
-          }
-        }
-      });
+      const respons = {
+        data: result
+      }
+      console.log(respons)
+      return { jsonBody: respons }
+    } catch (error) {
+      return {
+        status: 401,
+        body: JSON.stringify({ error: error.message })
+      }
+    }
+  }
+})
