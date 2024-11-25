@@ -7,7 +7,7 @@ app.http('nbTranscript', {
     handler: async (request, context) => {
         try {
             const accesstoken = request.headers.get('Authorization')
-            await validateToken(accesstoken, { role: [`${process.env.appName}.labs`] })
+            await validateToken(accesstoken, { role: [`${process.env.appName}.admin`] })
            
             // Payload fra klienten
             const formPayload = await request.formData()
