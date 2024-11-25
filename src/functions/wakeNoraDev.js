@@ -33,15 +33,15 @@ app.http('wakeNoraDev', {
       const wakeNB = await fetch(
         process.env.base_url_hf_nbtranscript,
         {
-            headers: { 
-                "Accept" : "application/json",
-                "Authorization": `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
-                "Content-Type": "audio/flac" 
-            },
-            method: "POST",
-            body: "WakeWake",
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+            'Content-Type': 'audio/flac'
+          },
+          method: 'POST',
+          body: 'WakeWake'
         }
-    );
+      )
 
       console.log(wakeNora)
       console.log(wakeNB)
