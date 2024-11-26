@@ -11,7 +11,7 @@ app.timer('wakeNora', {
         apiKey: process.env.HUGGINGFACEHUB_API_TOKEN
       })
 
-      const wakeNora = await openai.chat.completions.create({
+      const wakeNora = async () => openai.chat.completions.create({
         model: 'norallm/normistral-7b-warm-instruct',
         messages: [{
           role: 'user',
@@ -29,23 +29,25 @@ app.timer('wakeNora', {
         return_full_text: true
       })
 
-      const wakeNB = await fetch(
-        process.env.base_url_hf_nbtranscript,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
-            'Content-Type': 'audio/flac'
-          },
-          method: 'POST',
-          body: 'WakeWake'
+      const wakeNB = async () => {
+        const response = await axios.post(
+          process.env.base_url_hf_nbtranscript,
+          'WakeWake',
+          {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+          'Content-Type': 'audio/flac'
         }
-      )
+          }
+        )
+        return response.data
+      }
 
-      const w1 = wakeNora
-      const w2 = wakeNB
-      console.log(w1.choices[0].message.content)
-      console.log(w2)
+      const w1 = await wakeNora()
+      const w2 = await wakeNB() 
+      console.log("Nora: ", w1)
+      console.log("NB: ", w2)
     } catch (error) {
       console.log(error.message)
     }
