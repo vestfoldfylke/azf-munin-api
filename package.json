@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@azure/functions": "^4.4.0",
+    "@mistralai/mistralai": "^1.3.4",
     "openai": "^4.67.2",
     "validate-azure-ad-token": "^2.2.0"
   },
