@@ -1,5 +1,6 @@
 const { app } = require('@azure/functions')
 const { OpenAI } = require('openai')
+const axios = require('axios')
 
 app.http('wakeNoraDev', {
   methods: ['GET', 'POST'],
@@ -12,7 +13,7 @@ app.http('wakeNoraDev', {
         apiKey: process.env.HUGGINGFACEHUB_API_TOKEN
       })
 
-      const wakeNora = await openai.chat.completions.create({
+      const wakeNora = async () => openai.chat.completions.create({
         model: 'norallm/normistral-7b-warm-instruct',
         messages: [{
           role: 'user',
@@ -30,21 +31,25 @@ app.http('wakeNoraDev', {
         return_full_text: true
       })
 
-      const wakeNB = await fetch(
-        process.env.base_url_hf_nbtranscript,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
-            'Content-Type': 'audio/flac'
-          },
-          method: 'POST',
-          body: 'WakeWake'
+      const wakeNB = async () => {
+        const response = await axios.post(
+          process.env.base_url_hf_nbtranscript,
+          'WakeWake',
+          {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+          'Content-Type': 'audio/flac'
         }
-      )
+          }
+        )
+        return response.data
+      }
 
-      console.log(wakeNora)
-      console.log(wakeNB)
+      const w1 = await wakeNora()
+      const w2 = await wakeNB() 
+      console.log("Nora: ", w1)
+      console.log("NB: ", w2)
     } catch (error) {
       console.log(error.message)
     }
