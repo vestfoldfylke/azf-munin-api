@@ -14,11 +14,14 @@ app.http('assistantOpenAi', {
       const params = JSON.parse(await request.text())
       let thread // = formPayload.get('thread_id')
 
+      // Map role and content from messageHistory and remove model so result is {role: 'role', content: 'content'}
+      console.log('Params:', params.messageHistory.map(({role, content})=>({role: role, content: content })))
+
       // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
       if (params.new_thread) {
         // Lager en ny tråd
         thread = await openai.beta.threads.create({
-          messages: params.messageHistory
+          messages: params.messageHistory.map(({role, content})=>({role: role, content: content })) // Map only role and content from messageHistory
         })
       } else {
         // Henter en eksisterende tråd
@@ -46,7 +49,6 @@ app.http('assistantOpenAi', {
       } else {
         // console.log(run.status)
       }
-      // console.log('Meldinger', messages)
 
       const respons = {
         run: run.status,
@@ -54,13 +56,12 @@ app.http('assistantOpenAi', {
         assistant_id: run.assistant_id,
         messages: messages.data
       }
-
       return {
         body: JSON.stringify(respons)
       }
     } catch (error) {
       return {
-        status: 401,
+        status: 400,
         body: JSON.stringify({ error: error.message })
       }
     }

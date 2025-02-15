@@ -43,23 +43,8 @@ app.http('nbTranscript', {
             // Get the URL of the uploaded blob
             const blobUrl = blockBlobClient.url;
 
-            // const response = await fetch(
-            //     process.env.base_url_hf_nbtranscript,
-            //     {
-            //         headers: { 
-            //             "Accept" : "application/json",
-            //             "Authorization": `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
-            //             "Content-Type": "audio/flac" 
-            //         },
-            //         method: "POST",
-            //         body: data,
-            //     }
-            // );
-            // const result = await response.json();
-            // console.log("Her er resultatet: ");
-
             const respons = {
-                data: result,
+                data: "Alt gikk bra",
                 blobUrl: blobUrl
             };
             console.log(respons);
