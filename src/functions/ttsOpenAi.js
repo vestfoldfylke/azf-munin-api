@@ -1,3 +1,5 @@
+// Ikke aktiv
+
 const { app } = require('@azure/functions')
 const { OpenAI } = require('openai')
 const validateToken = require('../lib/validateToken')

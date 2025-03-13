@@ -1,6 +1,7 @@
 const { app } = require('@azure/functions')
 const { Mistral } = require('@mistralai/mistralai');
-const validateToken = require('../lib/validateToken')
+const validateToken = require('../lib/validateToken');
+const { logger } = require('@vtfk/logger');
 
 app.http('multimodalMistral', {
     methods: ['GET', 'POST'],
@@ -16,19 +17,19 @@ app.http('multimodalMistral', {
           const accesstoken = request.headers.get('Authorization')
           await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] })
         } catch (error) {
+          logger('error', ['multimodalMistral - Tokenvalidation', error?.message])
           return {
             status: 401,
-            jsonBody: { error: error.response?.data || error?.stack || error.message }
+            jsonBody: { error: error.response?.data || error.message }
           }
         }
-        console.log("Ny spørring til Pixtral")
+
         try {
           msg = [{ role: 'system', content: params.kontekst }]
           msg.push(...params.messageHistory)
     
           if (params.bilde_base64String !== '') {
-            console.log("Bilde!!!")
-            console.log(params.messageHistory.at(-1).content)
+            logger('info', ['multimodalMistral', 'Bilde er sendt med brukerinput'])
             msg.push(
               {
                 role: "user",
@@ -41,14 +42,9 @@ app.http('multimodalMistral', {
                 ],
               },
             )
-          } else {
-            console.log("Ikke bilde!!!")
-            // msg.push({ role: 'user', content: params.message })
           }
         } catch (error) {
-          return {
-            jsonBody: { error: error.response?.data || error?.stack || error.message }
-          }
+          logger('error', ['multimodalMistral - Noe gikk galt med melding/bilde'])
         }
         try {
           const completion = await pixtral.chat.complete({
@@ -56,14 +52,12 @@ app.http('multimodalMistral', {
             model: params.model,
             temperature: params.temperature
           })
-    
+          logger('info', ['multimodalMistral', 'success'])
           return {
             body: JSON.stringify(completion)
           }
         } catch (error) {
-          return {
-            jsonBody: { error: error.response?.data || error?.stack || error.message }
-          }
+          logger('error', ['multimodalMistral - Noe gikk galt med chat.complete'])
         }
       }
     })
