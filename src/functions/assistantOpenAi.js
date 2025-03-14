@@ -1,7 +1,7 @@
 const { app } = require('@azure/functions')
 const { OpenAI } = require('openai')
 const validateToken = require('../lib/validateToken')
-// require("dotenv").config();
+const { logger } = require('@vtfk/logger')
 
 app.http('assistantOpenAi', {
   methods: ['GET', 'POST'],
@@ -10,44 +10,83 @@ app.http('assistantOpenAi', {
     try {
       const accesstoken = request.headers.get('Authorization')
       await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] })
+      logger('info', ['assistantOpenAi', 'Token validert'])
       const openai = new OpenAI()
       const params = JSON.parse(await request.text())
       let thread // = formPayload.get('thread_id')
 
-      // Map role and content from messageHistory and remove model so result is {role: 'role', content: 'content'}
-      console.log('Params:', params.messageHistory.map(({role, content})=>({role: role, content: content })))
 
       // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
       if (params.new_thread) {
         // Lager en ny tråd
-        thread = await openai.beta.threads.create({
-          messages: params.messageHistory.map(({role, content})=>({role: role, content: content })) // Map only role and content from messageHistory
-        })
+        logger('info', ['assistantOpenAi', 'Ny tråd:', params.new_thread])
+        try {
+          thread = await openai.beta.threads.create({
+            messages: params.messageHistory.map(({ role, content }) => ({ role: role, content: content })) // Map only role and content from messageHistory
+          })
+        } catch (error) {
+          logger('error', ['assistantOpenAi', 'Failed to create thread', error.message])
+          return {
+            status: 400,
+            body: JSON.stringify({ error: 'Failed to create thread' })
+          }
+        }
       } else {
         // Henter en eksisterende tråd
-        thread = await openai.beta.threads.retrieve(params.thread_id)
+        try {
+          thread = await openai.beta.threads.retrieve(params.thread_id)
+        } catch (error) {
+          logger('error', ['assistantOpenAi', 'Failed to retrieve thread', error.message])
+          return {
+            status: 400,
+            body: JSON.stringify({ error: 'Failed to retrieve thread' })
+          }
+        }
         // Oppdaterer tråden med siste melding i messageHistory
         const messageLength = params.messageHistory.length
-        await openai.beta.threads.messages.create(thread.id, {
-          role: 'user',
-          content: params.messageHistory[messageLength - 1].content // Siste melding i messageHistory
-        })
+        try {
+          await openai.beta.threads.messages.create(thread.id, {
+            role: 'user',
+            content: params.messageHistory[messageLength - 1].content // Siste melding i messageHistory
+          })
+        } catch (error) {
+          logger('error', ['assistantOpenAi', 'Failed to create message', error.message])
+          return {
+            status: 400,
+            body: JSON.stringify({ error: 'Failed to create message' })
+          }
+        }
       }
 
       // Kjører tråden på valgt assistent
-      const run = await openai.beta.threads.runs.createAndPoll(
-        thread.id,
-        {
-          assistant_id: params.assistant_id
+      let run
+      try {
+        run = await openai.beta.threads.runs.createAndPoll(
+          thread.id,
+          {
+        assistant_id: params.assistant_id
+          }
+        )
+      } catch (error) {
+        logger('error', ['assistantOpenAi', 'Failed to run assistant', error.message])
+        return {
+          status: 400,
+          body: JSON.stringify({ error: 'Failed to run assistant' })
         }
-      )
+      }
 
       // List messages in thread
       let messages // Global variabel for å lagre meldingene
-      if (run.status === 'completed') {
-        messages = await openai.beta.threads.messages.list(run.thread_id)
-      } else {
-        // console.log(run.status)
+      try {
+        if (run.status === 'completed') {
+          messages = await openai.beta.threads.messages.list(run.thread_id)
+        }
+      } catch (error) {
+        logger('error', ['assistantOpenAi', 'Failed to list messages', error.message])
+        return {
+          status: 400,
+          body: JSON.stringify({ error: 'Failed to list messages' })
+        }
       }
 
       const respons = {
@@ -56,10 +95,12 @@ app.http('assistantOpenAi', {
         assistant_id: run.assistant_id,
         messages: messages.data
       }
+      logger('info', ['assistantOpenAi', 'Success'])
       return {
         body: JSON.stringify(respons)
       }
     } catch (error) {
+      logger('error', ['assistantOpenAi', error.message])
       return {
         status: 400,
         body: JSON.stringify({ error: error.message })

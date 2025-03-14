@@ -1,5 +1,6 @@
 const { app } = require('@azure/functions')
 const { OpenAI } = require('openai')
+const { logger } = require('@vtfk/logger')
 const validateToken = require('../lib/validateToken')
 // require("dotenv").config();
 
@@ -16,6 +17,7 @@ app.http('multimodalOpenAi', {
       const accesstoken = request.headers.get('Authorization')
       await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] })
     } catch (error) {
+      logger('error', ['multimodalOpenAi - Tokenvalidation', error?.message, error?.stack])
       return {
         status: 401,
         jsonBody: { error: error.response?.data || error?.stack || error.message }
@@ -27,6 +29,7 @@ app.http('multimodalOpenAi', {
       msg.push(...params.messageHistory)
 
       if (params.bilde_base64String !== '') {
+        logger('info', ['multimodalOpenAi', 'Bilde er sendt med brukerinput'])
         msg.push({
           role: 'user',
           content: [
@@ -39,10 +42,11 @@ app.http('multimodalOpenAi', {
             }
           ]
         })
-      } else {
+      } else {  
         msg.push({ role: 'user', content: params.message })
       }
     } catch (error) {
+      logger('error', ['multimodalOpenAi', error?.message, error?.stack])
       return {
         jsonBody: { error: error.response?.data || error?.stack || error.message }
       }
@@ -53,11 +57,12 @@ app.http('multimodalOpenAi', {
         model: params.model,
         temperature: params.temperature
       })
-
+      logger('info', ['multimodalOpenAi', 'success'])
       return {
         body: JSON.stringify(completion)
       }
     } catch (error) {
+      logger('error', ['multimodalOpenAi', error?.message, error?.stack])
       return {
         jsonBody: { error: error.response?.data || error?.stack || error.message }
       }
