@@ -15,14 +15,13 @@ app.http('assistantOpenAi', {
       const params = JSON.parse(await request.text())
       let thread // = formPayload.get('thread_id')
 
-
       // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
       if (params.new_thread) {
         // Lager en ny tråd
         logger('info', ['assistantOpenAi', 'Ny tråd:', params.new_thread])
         try {
           thread = await openai.beta.threads.create({
-            messages: params.messageHistory.map(({ role, content }) => ({ role: role, content: content })) // Map only role and content from messageHistory
+            messages: params.messageHistory.map(({ role, content }) => ({ role, content })) // Map only role and content from messageHistory
           })
         } catch (error) {
           logger('error', ['assistantOpenAi', 'Failed to create thread', error.message])
@@ -64,7 +63,7 @@ app.http('assistantOpenAi', {
         run = await openai.beta.threads.runs.createAndPoll(
           thread.id,
           {
-        assistant_id: params.assistant_id
+            assistant_id: params.assistant_id
           }
         )
       } catch (error) {

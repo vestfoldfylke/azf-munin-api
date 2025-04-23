@@ -1,7 +1,6 @@
 const { app } = require('@azure/functions')
 const validateToken = require('../lib/validateToken')
 const { BlobServiceClient } = require('@azure/storage-blob')
-const jwt = require('jsonwebtoken')
 
 app.http('nbTranscript', {
   methods: ['GET', 'POST'],
@@ -41,7 +40,6 @@ app.http('nbTranscript', {
         data: 'Alt gikk bra',
         blobUrl
       }
-      console.log(respons)
       return { jsonBody: respons }
     } catch (error) {
       return {
