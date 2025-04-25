@@ -17,6 +17,7 @@ app.http('responseOpenAi', {
       const accesstoken = request.headers.get('Authorization')
       await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.dokumentchat`, `${process.env.appName}.chat`] })
     } catch (error) {
+      logger('error', ['responseOpenAi', 'Error validating token:', error])
       return {
         status: 401,
         jsonBody: { error: error.response?.data || error?.stack || error.message }
@@ -60,13 +61,12 @@ app.http('responseOpenAi', {
     }
 
     const response = await openai.responses.create({
-      model: 'gpt-4.1',
+      model: params.model,
       tools: [{ type: 'web_search_preview' }],
       previous_response_id: params.response_id,
       input
     })
-
-    console.log(response)
+    logger('info', ['responseOpenAi', 'Response:', response.id])
     return { body: JSON.stringify(response) }
   }
 })
