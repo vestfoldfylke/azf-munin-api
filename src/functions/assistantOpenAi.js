@@ -11,9 +11,21 @@ app.http('assistantOpenAi', {
       const accesstoken = request.headers.get('Authorization')
       await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] })
       logger('info', ['assistantOpenAi', 'Token validert'])
-      const openai = new OpenAI()
       const params = JSON.parse(await request.text())
       let thread // = formPayload.get('thread_id')
+
+      // Velger riktig api-nøkkel basert på flis
+      let tile = params.tile
+      let assistant_apiKey = process.env.OPENAI_API_KEY
+      console.log('tile', tile)
+
+      if ( tile === 'labs') {
+        assistant_apiKey = process.env.OPENAI_API_KEY_LABS
+      }
+
+      const openai = new OpenAI({
+        apiKey: assistant_apiKey
+      })
 
       // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
       if (params.new_thread) {
