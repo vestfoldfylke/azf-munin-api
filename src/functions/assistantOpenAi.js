@@ -17,12 +17,9 @@ app.http('assistantOpenAi', {
       // Velger riktig api-nøkkel basert på flis
       let tile = params.tile
       let assistant_apiKey = process.env.OPENAI_API_KEY
-      console.log('tile', tile)
-
       if ( tile === 'labs') {
         assistant_apiKey = process.env.OPENAI_API_KEY_LABS
       }
-
       const openai = new OpenAI({
         apiKey: assistant_apiKey
       })
