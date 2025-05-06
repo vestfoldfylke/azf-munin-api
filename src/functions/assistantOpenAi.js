@@ -9,7 +9,7 @@ app.http('assistantOpenAi', {
   handler: async (request, context) => {
     try {
       const accesstoken = request.headers.get('Authorization')
-      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] })
+      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.skolebotter`, `${process.env.appName}.orgbotter`] })
       logger('info', ['assistantOpenAi', 'Token validert'])
       const params = JSON.parse(await request.text())
       let thread // = formPayload.get('thread_id')
@@ -17,12 +17,21 @@ app.http('assistantOpenAi', {
       // Velger riktig api-nøkkel basert på flis
       let tile = params.tile
       let assistant_apiKey = process.env.OPENAI_API_KEY
+
       if ( tile === 'labs') {
         assistant_apiKey = process.env.OPENAI_API_KEY_LABS
-      }
+      } else if ( tile === 'orgbotter') {
+        assistant_apiKey = process.env.OPENAI_API_KEY_ORGBOTTER
+      } else if ( tile === 'skolebotter' ) {
+        assistant_apiKey = process.env.OPENAI_API_KEY_SKOLEBOTTER
+      } else assistant_apiKey = process.env.OPENAI_API_KEY
+      
       const openai = new OpenAI({
         apiKey: assistant_apiKey
       })
+
+      console.log('tile', tile)
+      console.log('assistant_apiKey', assistant_apiKey)
 
       // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
       if (params.new_thread) {
