@@ -30,9 +30,6 @@ app.http('assistantOpenAi', {
         apiKey: assistant_apiKey
       })
 
-      console.log('tile', tile)
-      console.log('assistant_apiKey', assistant_apiKey)
-
       // Sjekker om det skal opprettes en ny tråd eller om det skal brukes en eksisterende
       if (params.new_thread) {
         // Lager en ny tråd
