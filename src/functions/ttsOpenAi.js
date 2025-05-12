@@ -14,7 +14,7 @@ app.http('ttsOpenAi', {
 
     // Parse the input text from the request body
     const params = await JSON.parse(await request.text())
-    console.log('params:', params.tekst)
+    // console.log('params:', params.tekst)
 
     // Validate the token and the role of the user
     try {

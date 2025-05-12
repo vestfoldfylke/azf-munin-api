@@ -72,7 +72,6 @@ app.http('responseOpenAi', {
       previous_response_id: params.response_id,
       input
     })
-    console.log('responseOpenAi', 'Response:', response)
     logger('info', ['responseOpenAi', 'Response:', response.id])
     return { body: JSON.stringify(response) }
   }
