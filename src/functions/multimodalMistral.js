@@ -14,7 +14,7 @@ app.http('multimodalMistral', {
     // Validate the token and the role of the user
     try {
       const accesstoken = request.headers.get('Authorization')
-      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.chat`] })
+      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`] })
     } catch (error) {
       logger('error', ['multimodalMistral - Tokenvalidation', error?.message])
       return {

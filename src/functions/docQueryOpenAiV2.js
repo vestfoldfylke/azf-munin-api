@@ -9,7 +9,7 @@ app.http('docQueryOpenAiV2', {
   handler: async (request, context) => {
     try {
       const accesstoken = request.headers.get('Authorization')
-      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.dokumentchat`] })
+      await validateToken(accesstoken, { role: [`${process.env.appName}.admin`, `${process.env.appName}.dokumentchat`] })
       logger('info', ['docQueryOpenAiV2', 'Token validert'])
       const openai = new OpenAI()
 

@@ -15,7 +15,7 @@ app.http('responseOpenAi', {
     // Validate the token and the role of the user
     try {
       const accesstoken = request.headers.get('Authorization')
-      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.dokumentchat`, `${process.env.appName}.chat`] })
+      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.dokumentchat`] })
     } catch (error) {
       logger('error', ['responseOpenAi', 'Error validating token:', error])
       return {
