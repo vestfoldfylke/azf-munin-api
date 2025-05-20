@@ -24,6 +24,8 @@ app.http('assistantOpenAi', {
         assistant_apiKey = process.env.OPENAI_API_KEY_ORGBOTTER
       } else if ( tile === 'skolebotter' ) {
         assistant_apiKey = process.env.OPENAI_API_KEY_SKOLEBOTTER
+      } else if ( tile === 'fartebot' ) { 
+        assistant_apiKey = process.env.OPENAI_API_KEY_KOLLEKTIV
       } else assistant_apiKey = process.env.OPENAI_API_KEY
       
       const openai = new OpenAI({
