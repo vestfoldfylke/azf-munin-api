@@ -38,20 +38,20 @@ app.http('wakeNoraDev', {
           process.env.base_url_hf_nbtranscript,
           'WakeWake',
           {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
-          'Content-Type': 'audio/flac'
-        }
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+              'Content-Type': 'audio/flac'
+            }
           }
         )
         return response.data
       }
 
       const w1 = await wakeNora()
-      const w2 = await wakeNB() 
-      console.log("Nora: ", w1)
-      console.log("NB: ", w2)
+      const w2 = await wakeNB()
+      console.log('Nora: ', w1)
+      console.log('NB: ', w2)
     } catch (error) {
       console.log(error.message)
     }

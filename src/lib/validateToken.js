@@ -21,10 +21,7 @@ const validateRoles = (tokenRoles, role) => {
   tokenRoles = toLowerCase(tokenRoles)
   role = toLowerCase(role)
   // Check if the user has the required role.
-  // console.log(`tokenRoles: ${tokenRoles}`);
-  // console.log(`Role: ${role}`)
   const hasRole = tokenRoles.some((r) => role.includes(r))
-  console.log(hasRole)
   return hasRole
 }
 

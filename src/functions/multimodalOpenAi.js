@@ -42,7 +42,7 @@ app.http('multimodalOpenAi', {
             }
           ]
         })
-      } else {  
+      } else {
         msg.push({ role: 'user', content: params.message })
       }
     } catch (error) {

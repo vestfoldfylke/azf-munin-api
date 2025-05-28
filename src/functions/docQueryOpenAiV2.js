@@ -9,31 +9,33 @@ app.http('docQueryOpenAiV2', {
   handler: async (request, context) => {
     try {
       const accesstoken = request.headers.get('Authorization')
-      await validateToken(accesstoken, { role: [`${process.env.appName}.admin`] })
+      await validateToken(accesstoken, { role: [`${process.env.appName}.admin`, `${process.env.appName}.dokumentchat`] })
       logger('info', ['docQueryOpenAiV2', 'Token validert'])
       const openai = new OpenAI()
+
+      let VS, result
 
       // Payload fra klienten
       const formPayload = await request.formData()
       const fileStreams = formPayload.getAll('filer')
-      const assistantId = formPayload.get('assistant_id')
-      const newThread = formPayload.get('new_thread')
-      let thread // = formPayload.get('thread_id')
-      let vectorStore // = formPayload.get('vectorStore_id')
-      const message = formPayload.get('message')
+      const new_thread = formPayload.get('new_thread')
+      let vectorStore = formPayload.get('vectorStore_id')
+      const response_id = formPayload.get('response_id')
+      const userMessage = formPayload.get('userMessage')
 
       // Sjekker om vi skal lage ny tråd og vectorstore eller bruke eksisterende
-      logger('info', ['docQueryOpenAiV2', 'Ny tråd:', newThread])
-      if (newThread === 'true') {
+      logger('info', ['docQueryOpenAiV2', 'Ny tråd:', new_thread])
+      if (new_thread === 'true') {
         // Lager vector store
         try {
-          vectorStore = await openai.beta.vectorStores.create({
+          VS = await openai.vectorStores.create({
             name: 'docQueryVectorStore',
             expires_after: {
               anchor: 'last_active_at',
               days: 1
             }
           })
+          vectorStore = VS.id
         } catch (error) {
           logger('error', ['docQueryOpenAiV2', 'Error creating vector store', error.message])
           throw new Error('Failed to create vector store')
@@ -41,93 +43,49 @@ app.http('docQueryOpenAiV2', {
 
         // Lastert opp fil(er) til vector store og oppdaterer
         try {
-          await openai.beta.vectorStores.fileBatches.uploadAndPoll(
-            vectorStore.id,
-            { files: fileStreams }
-          )
+          const filListe = []
+          for (const file of fileStreams) {
+            // Upload the file to OpenAI
+            result = await openai.files.create({
+              file,
+              purpose: 'assistants'
+            })
+            filListe.push(result.id)
+
+            // Upload the file to the vector store
+            const myVectorStoreFile = await openai.vectorStores.files.create(
+              vectorStore,
+              {
+                file_id: result.id
+              }
+            )
+            logger('info', ['docQueryOpenAiV2', 'File uploaded to vector store:', myVectorStoreFile.id])
+          }
         } catch (error) {
           logger('error', ['docQueryOpenAiV2', 'Error uploading files to vector store', error.message])
           throw new Error('Failed to upload files to vector store')
         }
-
-        try {
-          thread = await openai.beta.threads.create({
-            messages: [
-              {
-          role: 'user',
-          content: message // Dette er brukerspørsmålet
-              }
-            ]
-          })
-        } catch (error) {
-          logger('error', ['docQueryOpenAiV2', 'Error creating thread', error.message])
-          throw new Error('Failed to create thread')
-        }
       } else {
-        // Hvis dokumenetene allerede er lastet opp og vi har en eksisterende tråd og vector store så fortsetter vi på det vi har
-
-        // Retrieve vector store and thread
-        try {
-          vectorStore = await openai.beta.vectorStores.retrieve(formPayload.get('vectorStore_id'))
-        } catch (error) {
-          logger('error', ['docQueryOpenAiV2', 'Error retrieving vector store', error.message])
-          throw new Error('Failed to retrieve vector store')
-        }
-        try {
-          thread = await openai.beta.threads.retrieve(formPayload.get('thread_id'))
-        } catch (error) {
-          logger('error', ['docQueryOpenAiV2', 'Error retrieving thread', error.message])
-          throw new Error('Failed to retrieve thread')
-        }
-        // Oppdaterer tråden med ny melding
-        try {
-          await openai.beta.threads.messages.create(thread.id, {
-            role: 'user',
-            content: message
-          })
-        } catch (error) {
-          logger('error', ['docQueryOpenAiV2', 'Error creating message in thread', error.message])
-          throw new Error('Failed to create message in thread')
-        }
+        console.log('Bruker eksisterende vector store')
       }
 
-      try {
-        await openai.beta.assistants.update(assistantId, {
-          tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } }
-        })
-      } catch (error) {
-        logger('error', ['docQueryOpenAiV2', 'Error updating assistant', error.message])
-        throw new Error('Failed to update assistant')
+      const queryObject = {
+        model: 'gpt-4.1',
+        input: userMessage,
+        tools: [{
+          type: 'file_search',
+          vector_store_ids: [vectorStore]
+        }]
       }
 
-      // Kjører assistenten med tråden
-      logger('info', ['docQueryOpenAiV2', 'Run startded', thread.id, assistantId])
-      const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
-        assistant_id: assistantId
-      })
-
-      let messages // Global variabel for å lagre meldingene
-      if (run.status === 'completed') {
-        logger('info', ['docQueryOpenAiV2', 'Run completed', run.thread_id, run.assistant_id])
-        messages = await openai.beta.threads.messages.list(run.thread_id)
-        // console.log("Meldinger:", messages.data);
-        for (const message of messages.data.reverse()) {
-          console.log(`${message.role} > ${message.content[0].text.value}`)
-        }
-      } else {
-        logger('error', ['docQueryOpenAiV2', 'Run not completed', run.thread_id, run.assistant_id, run.status])
-        throw new Error('Run not completed')
+      if (response_id !== 'null' && response_id !== undefined) {
+        queryObject.previous_response_id = response_id
       }
 
-      const respons = {
-        run: run.status,
-        thread_id: thread.id,
-        assistant_id: run.assistant_id,
-        messages: messages.data,
-        vectorStore_id: vectorStore.id
-      }
+      const response = await openai.responses.create(queryObject)
+
       logger('info', ['docQueryOpenAiV2', 'Success'])
-      return { jsonBody: respons }
+      return { jsonBody: response }
     } catch (error) {
       return {
         status: 401,

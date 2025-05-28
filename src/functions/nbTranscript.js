@@ -1,7 +1,6 @@
 const { app } = require('@azure/functions')
 const validateToken = require('../lib/validateToken')
 const { BlobServiceClient } = require('@azure/storage-blob')
-const jwt = require('jsonwebtoken')
 
 app.http('nbTranscript', {
   methods: ['GET', 'POST'],
@@ -9,7 +8,7 @@ app.http('nbTranscript', {
   handler: async (request, context) => {
     try {
       const accesstoken = request.headers.get('Authorization')
-      await validateToken(accesstoken, { role: [`${process.env.appName}.admin`] })
+      await validateToken(accesstoken, { role: [`${process.env.appName}.admin`, `${process.env.appName}.transkripsjon`] })
 
       // Payload fra klienten
       const formPayload = await request.formData()
@@ -41,7 +40,6 @@ app.http('nbTranscript', {
         data: 'Alt gikk bra',
         blobUrl
       }
-      console.log(respons)
       return { jsonBody: respons }
     } catch (error) {
       return {

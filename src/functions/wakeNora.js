@@ -1,5 +1,6 @@
 const { app } = require('@azure/functions')
 const { OpenAI } = require('openai')
+const axios = require('axios')
 
 app.timer('wakeNora', {
   schedule: '0 55 5-13 * * 1-5', // Pinger Nora mellom 07:55 og 15:55 på hverdager (Legg til 2 timer for UTC)
@@ -34,20 +35,20 @@ app.timer('wakeNora', {
           process.env.base_url_hf_nbtranscript,
           'WakeWake',
           {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
-          'Content-Type': 'audio/flac'
-        }
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${process.env.HUGGINGFACEHUB_API_TOKEN}`,
+              'Content-Type': 'audio/flac'
+            }
           }
         )
         return response.data
       }
 
       const w1 = await wakeNora()
-      const w2 = await wakeNB() 
-      console.log("Nora: ", w1)
-      console.log("NB: ", w2)
+      const w2 = await wakeNB()
+      console.log('Nora: ', w1)
+      console.log('NB: ', w2)
     } catch (error) {
       console.log(error.message)
     }
