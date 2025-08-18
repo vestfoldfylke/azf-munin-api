@@ -9,7 +9,7 @@ app.http('assistantOpenAi', {
   handler: async (request, context) => {
     try {
       const accesstoken = request.headers.get('Authorization')
-      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.skolebotter`, `${process.env.appName}.orgbotter`] })
+      await validateToken(accesstoken, { role: [`${process.env.appName}.basic`, `${process.env.appName}.admin`, `${process.env.appName}.skolebotter`, `${process.env.appName}.orgbotter`, `${process.env.appName}.labs`] })
       logger('info', ['assistantOpenAi', 'Token validert'])
       const params = JSON.parse(await request.text())
       let thread // = formPayload.get('thread_id')
