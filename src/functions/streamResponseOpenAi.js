@@ -60,7 +60,7 @@ app.http('streamResponseOpenAi', {
       // Create streaming completion
       const completionParams = {
         model: params.model || 'gpt-4o-mini',
-        messages: messages,
+        messages,
         stream: true,
         max_tokens: params.max_tokens || undefined
       }
@@ -76,7 +76,7 @@ app.http('streamResponseOpenAi', {
 
       // Create a Node.js Readable stream for Azure Functions v4
       const nodeStream = new Readable({
-        read() {}
+        read () {}
       })
 
       // Process the OpenAI stream and push to nodeStream
@@ -94,7 +94,7 @@ app.http('streamResponseOpenAi', {
                 model: chunk.model,
                 choices: [{
                   index: chunk.choices[0].index,
-                  delta: delta,
+                  delta,
                   finish_reason: chunk.choices[0].finish_reason
                 }]
               })
@@ -105,7 +105,7 @@ app.http('streamResponseOpenAi', {
 
             // Send [DONE] when stream is finished
             if (chunk.choices[0]?.finish_reason) {
-              nodeStream.push(`data: [DONE]\n\n`)
+              nodeStream.push('data: [DONE]\n\n')
               nodeStream.push(null) // End the stream
               break
             }
@@ -124,13 +124,12 @@ app.http('streamResponseOpenAi', {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
+          Connection: 'keep-alive',
           'X-Accel-Buffering': 'no',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization'
         }
       }
-
     } catch (error) {
       logger('error', ['streamResponseOpenAi', 'Error:', error])
       return {
