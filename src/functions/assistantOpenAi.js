@@ -15,19 +15,19 @@ app.http('assistantOpenAi', {
       let thread // = formPayload.get('thread_id')
 
       // Velger riktig api-nøkkel basert på flis
-      let tile = params.tile
+      const tile = params.tile
       let assistant_apiKey = process.env.OPENAI_API_KEY
 
-      if ( tile === 'labs') {
+      if (tile === 'labs') {
         assistant_apiKey = process.env.OPENAI_API_KEY_LABS
-      } else if ( tile === 'orgbotter') {
+      } else if (tile === 'orgbotter') {
         assistant_apiKey = process.env.OPENAI_API_KEY_ORGBOTTER
-      } else if ( tile === 'skolebotter' ) {
+      } else if (tile === 'skolebotter') {
         assistant_apiKey = process.env.OPENAI_API_KEY_SKOLEBOTTER
-      } else if ( tile === 'fartebot' ) { 
+      } else if (tile === 'fartebot') {
         assistant_apiKey = process.env.OPENAI_API_KEY_KOLLEKTIV
       } else assistant_apiKey = process.env.OPENAI_API_KEY
-      
+
       const openai = new OpenAI({
         apiKey: assistant_apiKey
       })
